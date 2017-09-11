@@ -6,29 +6,27 @@
 #include "Color.h"
 
 class Light : public Source {
-  Vect position;
-  Color color;
+	Vect position;
+	Color color;
 
-  public:
+public:
 
-  Light();
+	Light();
 
-  Light(Vect, Color);
+	Light(Vect, Color);
 
-  Vect getLightPosition () { return position;}
-  Color getLightColor () { return color;}
-
-
+	Vect getLightPosition() { return position; }
+	Color getLightColor() { return color; }
 };
 
-Light::Light () {
-  position = Vect(0, 0, 0);
-  color = Color(1, 1, 1, 0);
+Light::Light() {
+	position = Vect(0, 0, 0);
+	color = Color(1, 1, 1, 0);
 }
 
-Light::Light (Vect p, Color c) {
-  position = p;
-  color = c;
+Light::Light(Vect p, Color c) {
+	position = p;
+	color = c;
 }
 
 #endif

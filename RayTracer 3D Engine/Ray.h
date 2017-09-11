@@ -4,28 +4,26 @@
 #include "Vect.h"
 
 class Ray {
-  Vect origin, direction;
+	Vect origin, direction;
 
-  public:
+public:
 
-  Ray();
+	Ray();
 
-  Ray(Vect, Vect);
+	Ray(Vect, Vect);
 
-  Vect getRayOrigin () { return origin;}
-  Vect getRayDirection () { return direction;}
-
-
+	Vect getRayOrigin() { return origin; }
+	Vect getRayDirection() { return direction; }
 };
 
-Ray::Ray () {
-  origin = Vect(0,0,0);
-  direction = Vect(1,0,0);
+Ray::Ray() {
+	origin = Vect(0, 0, 0);
+	direction = Vect(1, 0, 0);
 }
 
-Ray::Ray (Vect o, Vect d) {
-  origin = o;
-  direction = d;
+Ray::Ray(Vect o, Vect d) {
+	origin = o;
+	direction = d;
 }
 
 #endif

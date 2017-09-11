@@ -1,79 +1,93 @@
 #ifndef _FILESTREAM_H
 #define _FILESTREAM_H
 
-struct RGBType{
-  double r;
-  double g;
-  double b;
+#include <string.h>
+#include <stdio.h>
+
+struct rgb_type {
+	double r;
+	double g;
+	double b;
 };
 
-class Filestream{
+class filestream {
+public:
 
-  public:
+	static bool savembp(const char *filename, int w, int h, int dpi, rgb_type *data) {
+		const int k = w*h;
+		const int s = 4 * k;
+		const int filesize = 54 + s;
 
-  static void savembp(const char *filename, int w, int h, int dpi, RGBType *data){
-    FILE *f;
-    int k = w*h;
-    int s = 4*k;
-    int filesize = 54 + s;
+		const double factor = 39.375;
+		const int m = static_cast<int>(factor);
 
-    double factor = 39.375;
-    int m = static_cast<int>(factor);
+		const int ppm = dpi*m;
 
-    int ppm = dpi*m;
+		unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0,0,0, 54,0,0,0 };
+		unsigned char bmpinfoheader[40] = { 40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,24,0 };
 
-    unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0,0,0, 54,0,0,0};
-    unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,24,0};
+		bmpfileheader[2] = static_cast<unsigned char>(filesize);
+		bmpfileheader[3] = static_cast<unsigned char>(filesize >> 8);
+		bmpfileheader[4] = static_cast<unsigned char>(filesize >> 16);
+		bmpfileheader[5] = static_cast<unsigned char>(filesize >> 24);
 
-    bmpfileheader[ 2] = (unsigned char)(filesize);
-    bmpfileheader[ 3] = (unsigned char)(filesize>>8);
-    bmpfileheader[ 4] = (unsigned char)(filesize>>16);
-    bmpfileheader[ 5] = (unsigned char)(filesize>>24);
+		bmpinfoheader[4] = static_cast<unsigned char>(w);
+		bmpinfoheader[5] = static_cast<unsigned char>(w >> 8);
+		bmpinfoheader[6] = static_cast<unsigned char>(w >> 16);
+		bmpinfoheader[7] = static_cast<unsigned char>(w >> 24);
 
-    bmpinfoheader[ 4] = (unsigned char)(w);
-    bmpinfoheader[ 5] = (unsigned char)(w>>8);
-    bmpinfoheader[ 6] = (unsigned char)(w>>16);
-    bmpinfoheader[ 7] = (unsigned char)(w>>24);
+		bmpinfoheader[8] = static_cast<unsigned char>(h);
+		bmpinfoheader[9] = static_cast<unsigned char>(h >> 8);
+		bmpinfoheader[10] = static_cast<unsigned char>(h >> 16);
+		bmpinfoheader[11] = static_cast<unsigned char>(h >> 24);
 
-    bmpinfoheader[ 8] = (unsigned char)(h);
-    bmpinfoheader[ 9] = (unsigned char)(h>>8);
-    bmpinfoheader[10] = (unsigned char)(h>>16);
-    bmpinfoheader[11] = (unsigned char)(h>>24);
+		bmpinfoheader[21] = static_cast<unsigned char>(s);
+		bmpinfoheader[22] = static_cast<unsigned char>(s >> 8);
+		bmpinfoheader[23] = static_cast<unsigned char>(s >> 16);
+		bmpinfoheader[24] = static_cast<unsigned char>(s >> 24);
 
-    bmpinfoheader[21] = (unsigned char)(s);
-    bmpinfoheader[22] = (unsigned char)(s>>8);
-    bmpinfoheader[23] = (unsigned char)(s>>16);
-    bmpinfoheader[24] = (unsigned char)(s>>24);
+		bmpinfoheader[25] = static_cast<unsigned char>(ppm);
+		bmpinfoheader[26] = static_cast<unsigned char>(ppm >> 8);
+		bmpinfoheader[27] = static_cast<unsigned char>(ppm >> 16);
+		bmpinfoheader[28] = static_cast<unsigned char>(ppm >> 24);
 
-    bmpinfoheader[25] = (unsigned char)(ppm);
-    bmpinfoheader[26] = (unsigned char)(ppm>>8);
-    bmpinfoheader[27] = (unsigned char)(ppm>>16);
-    bmpinfoheader[28] = (unsigned char)(ppm>>24);
+		bmpinfoheader[29] = static_cast<unsigned char>(ppm);
+		bmpinfoheader[30] = static_cast<unsigned char>(ppm >> 8);
+		bmpinfoheader[31] = static_cast<unsigned char>(ppm >> 16);
+		bmpinfoheader[32] = static_cast<unsigned char>(ppm >> 24);
 
-    bmpinfoheader[29] = (unsigned char)(ppm);
-    bmpinfoheader[30] = (unsigned char)(ppm>>8);
-    bmpinfoheader[31] = (unsigned char)(ppm>>16);
-    bmpinfoheader[32] = (unsigned char)(ppm>>24);
+		FILE *file;
+		errno_t err;
+		if ((err = fopen_s(&file, filename, "wb")) != 0)
+		{
+			char buffer[256];
+			strerror_s(buffer, sizeof buffer, err);
+			fprintf_s(stderr, "cannot open file '%s': %s\n",
+				filename, buffer);
+			return false;
+		}
 
-    f = fopen(filename, "wb");
+		fwrite(bmpfileheader, 1, 14, file);
+		fwrite(bmpinfoheader, 1, 40, file);
 
-    fwrite(bmpfileheader,1,14,f);
-    fwrite(bmpinfoheader,1,40,f);
+		for (int i = 0; i < k; i++) {
+			rgb_type rgb = data[i];
 
-    for (int i = 0; i < k; i++){
-      RGBType rgb = data[i];
+			const double red = (data[i].r) * 255;
+			const double green = (data[i].g) * 255;
+			const double blue = (data[i].b) * 255;
 
-      double red = (data[i].r)*255;
-      double green = (data[i].g)*255;
-      double blue = (data[i].b)*255;
+			unsigned char color[3] = { static_cast<unsigned char>(static_cast<int>(floor(blue))),
+									   static_cast<unsigned char>(static_cast<int>(floor(green))),
+									   static_cast<unsigned char>(static_cast<int>(floor(red)))
+			};
 
-      unsigned char color[3] = {(int)floor(blue),(int)floor(green),(int)floor(red)};
+			fwrite(color, 1, 3, file);
+		}
 
-      fwrite(color,1,3,f);
-    }
-
-    fclose(f);
-  }
+		fclose(file);
+		return true;
+	}
 };
 
 #endif
