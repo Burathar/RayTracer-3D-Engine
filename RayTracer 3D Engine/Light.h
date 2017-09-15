@@ -2,31 +2,31 @@
 #define _LIGHT_H
 
 #include "Source.h"
-#include "Vect.h"
+#include "MyVector.h"
 #include "Color.h"
 
-class Light : public Source {
-	Vect position;
-	Color color;
+class light : public source {
+	my_vector position_;
+	color color_;
 
 public:
 
-	Light();
+	light();
 
-	Light(Vect, Color);
+	light(my_vector, color);
 
-	Vect getLightPosition() { return position; }
-	Color getLightColor() { return color; }
+	my_vector get_light_position() { return position_; }
+	color get_light_color() { return color_; }
 };
 
-Light::Light() {
-	position = Vect(0, 0, 0);
-	color = Color(1, 1, 1, 0);
+inline light::light() {
+	position_ = my_vector(0, 0, 0);
+	color_ = color(1, 1, 1, 0);
 }
 
-Light::Light(Vect p, Color c) {
-	position = p;
-	color = c;
+inline light::light(my_vector p, color c) {
+	position_ = p;
+	color_ = c;
 }
 
 #endif

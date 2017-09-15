@@ -1,15 +1,16 @@
 #ifndef _SOURCE_H
 #define _SOURCE_H
 
-class Source {
+class source {
 public:
+	virtual ~source() = default;
 
-	Source();
+	source();
 
-	virtual Vect getLightPosition() { return Vect(0, 0, 0); }
-	virtual Color getLightColor() { return Color(1, 1, 1, 0); }
+	virtual my_vector get_light_position() { return my_vector(0, 0, 0); }
+	virtual color get_light_color() { return color(1, 1, 1, 0); }
 };
 
-Source::Source() {}
+inline source::source() {}
 
 #endif

@@ -1,75 +1,76 @@
 #ifndef _COLOR_H
 #define _COLOR_H
 
-class Color {
-	double red, green, blue, special;
+class color {
+	double red_, green_, blue_, special_;
 
 public:
 
-	Color();
+	color();
 
-	Color(double, double, double, double);
+	color(double, double, double, double);
 
-	double getColorRed() { return red; }
-	double getColorGreen() { return green; }
-	double getColorBlue() { return blue; }
-	double getColorSpecial() { return special; }
+	double get_color_red() { return red_; }
+	double get_color_green() { return green_; }
+	double get_color_blue() { return blue_; }
+	double get_color_special() { return special_; }
 
-	void setColorRed(double redValue) { red = redValue; }
-	void setColorGreen(double greenValue) { green = greenValue; }
-	void setColorBlue(double blueValue) { blue = blueValue; }
-	void setColorSpecial(double specialValue) { special = specialValue; }
+	void set_color_red(double red_value) { red_ = red_value; }
+	void set_color_green(double green_value) { green_ = green_value; }
+	void set_color_blue(double blue_value) { blue_ = blue_value; }
+	void set_color_special(double special_value) { special_ = special_value; }
 
 	double brightness() {
-		return (red + green + blue) / 3;
+		return (red_ + green_ + blue_) / 3;
 	}
 
-	Color colorScalar(double scalar) {
-		return Color(red * scalar, green * scalar, blue * scalar, special);
+	color color_scalar(double scalar) {
+		return color(red_ * scalar, green_ * scalar, blue_ * scalar, special_);
 	}
 
-	Color colorAdd(Color color) {
-		return Color(red + color.getColorRed(), green + color.getColorGreen(), blue + color.getColorBlue(), special);
+	color color_add(color add_color) {
+		return color(red_ + add_color.get_color_red(), green_ + add_color.get_color_green(), blue_ + add_color.get_color_blue(), special_);
 	}
 
-	Color colorMultiply(Color color) {
-		return Color(red * color.getColorRed(), green * color.getColorGreen(), blue * color.getColorBlue(), special);
+	color color_multiply(color add_color) {
+		return color(red_ * add_color.get_color_red(), green_ * add_color.get_color_green(), blue_ * add_color.get_color_blue(), special_);
 	}
 
-	Color colorAverage(Color color) {
-		return Color((red + color.getColorRed()) / 2, (green + color.getColorGreen()) / 2, (blue + color.getColorBlue()) / 2, special);
+	color color_average(color add_color) {
+		return color((red_ + add_color.get_color_red()) / 2, (green_ + add_color.get_color_green()) / 2, (blue_ + add_color.get_color_blue()) / 2, special_);
 	}
 
-	Color clip() {
-		double alllight = red + green + blue;
-		double excessLight = alllight - 3;
-		if (excessLight > 0) {
-			red = red + excessLight * (red / alllight);
-			green = green + excessLight * (green / alllight);
-			blue = blue + excessLight * (blue / alllight);
+	color clip() {
+		const double alllight = red_ + green_ + blue_;
+		const double excess_light = alllight - 3;
+		if (excess_light > 0) {
+			red_ = red_ + excess_light * (red_ / alllight);
+			green_ = green_ + excess_light * (green_ / alllight);
+			blue_ = blue_ + excess_light * (blue_ / alllight);
 		}
-		if (red > 1) { red = 1; }
-		if (green > 1) { green = 1; }
-		if (blue > 1) { blue = 1; }
-		if (red < 0) { red = 0; }
-		if (green < 0) { green = 0; }
-		if (blue < 0) { blue = 0; }
+		if (red_ > 1) { red_ = 1; }
+		if (green_ > 1) { green_ = 1; }
+		if (blue_ > 1) { blue_ = 1; }
+		if (red_ < 0) { red_ = 0; }
+		if (green_ < 0) { green_ = 0; }
+		if (blue_ < 0) { blue_ = 0; }
 
-		return Color(red, green, blue, special);
+		return color(red_, green_, blue_, special_);
 	}
 };
 
-Color::Color() {
-	red = 0.5;
-	green = 0.5;
-	blue = 0.5;
+inline color::color() {
+	red_ = 0.5;
+	green_ = 0.5;
+	blue_ = 0.5;
+	special_ = 0;
 }
 
-Color::Color(double r, double g, double b, double s) {
-	red = r;
-	green = g;
-	blue = b;
-	special = s;
+inline color::color(double r, double g, double b, double s) {
+	red_ = r;
+	green_ = g;
+	blue_ = b;
+	special_ = s;
 }
 
 #endif

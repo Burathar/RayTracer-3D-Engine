@@ -1,105 +1,103 @@
 #ifndef _TRIANGLE_H
 #define _TRIANGLE_H
 
-#include "math.h"
 #include "Object.h"
-#include "Vect.h"
+#include "MyVector.h"
 #include "Color.h"
 
-class Triangle : public Object {
-	Vect A, B, C;
-	Vect normal;
-	double distance;
-	Color color;
+class triangle : public object {
+	my_vector a_, b_, c_;
+	my_vector normal_;
+	double distance_;
+	color color_;
 
 public:
 
-	Triangle();
+	triangle();
 
-	Triangle(Vect, Vect, Vect, Color);
+	triangle(my_vector, my_vector, my_vector, color);
 
-	Vect getTriangleNormal() {
-		Vect CA(C.getVectX() - A.getVectX(), C.getVectY() - A.getVectY(), C.getVectZ() - A.getVectZ());
-		Vect BA(B.getVectX() - A.getVectX(), B.getVectY() - A.getVectY(), B.getVectZ() - A.getVectZ());
-		normal = CA.crossProduct(BA).normalize();
-		return normal;
+	my_vector get_triangle_normal() {
+		my_vector ca(c_.get_vect_x() - a_.get_vect_x(), c_.get_vect_y() - a_.get_vect_y(), c_.get_vect_z() - a_.get_vect_z());
+		const my_vector ba(b_.get_vect_x() - a_.get_vect_x(), b_.get_vect_y() - a_.get_vect_y(), b_.get_vect_z() - a_.get_vect_z());
+		normal_ = ca.cross_product(ba).normalize();
+		return normal_;
 	}
 
-	double getTriangleDistance() {
-		normal = getTriangleNormal();
-		distance = normal.dotProduct(A);
-		return distance;
+	double get_triangle_distance() {
+		normal_ = get_triangle_normal();
+		distance_ = normal_.dot_product(a_);
+		return distance_;
 	}
 
-	Color getColor() { return color; }
+	color get_color() override { return color_; }
 
-	Vect getNormalAt(Vect point) {
-		normal = getTriangleNormal();
+	my_vector get_normal_at(my_vector point) override
+	{
+		normal_ = get_triangle_normal();
 
-		return normal;
+		return normal_;
 	}
 
-	double findIntersection(Ray ray) {
-		Vect ray_direction = ray.getRayDirection();
-		Vect ray_origin = ray.getRayOrigin();
+	double find_intersection(ray ray) override
+	{
+		my_vector ray_direction = ray.get_ray_direction();
+		my_vector ray_origin = ray.get_ray_origin();
 
-		normal = getTriangleNormal();
-		distance = getTriangleDistance();
+		normal_ = get_triangle_normal();
+		distance_ = get_triangle_distance();
 
-		double a = ray_direction.dotProduct(normal);
+		const double a = ray_direction.dot_product(normal_);
 
 		if (a == 0) {
 			//ray is parallel to  the Triangle
 			return -1;
 		}
-		else {
-			double b = normal.dotProduct(ray.getRayOrigin().vectAdd(normal.vectMult(distance).negative()));
-			double distance2plane = -1 * b / a;
+		const double b = normal_.dot_product(ray.get_ray_origin().vect_add(normal_.vect_mult(distance_).negative()));
+		const double distance_to_plane = -1 * b / a;
 
-			//Is the intersection in the triangle?
-			double Qx = ray_direction.vectMult(distance2plane).getVectX() + ray_origin.getVectX();
-			double Qy = ray_direction.vectMult(distance2plane).getVectY() + ray_origin.getVectY();
-			double Qz = ray_direction.vectMult(distance2plane).getVectZ() + ray_origin.getVectZ();
+		//Is the intersection in the triangle?
+		const double qx = ray_direction.vect_mult(distance_to_plane).get_vect_x() + ray_origin.get_vect_x();
+		const double qy = ray_direction.vect_mult(distance_to_plane).get_vect_y() + ray_origin.get_vect_y();
+		const double qz = ray_direction.vect_mult(distance_to_plane).get_vect_z() + ray_origin.get_vect_z();
 
-			Vect Q(Qx, Qy, Qz);
+		my_vector q(qx, qy, qz);
 
-			Vect CA(C.getVectX() - A.getVectX(), C.getVectY() - A.getVectY(), C.getVectZ() - A.getVectZ());
-			Vect QA(Q.getVectX() - A.getVectX(), Q.getVectY() - A.getVectY(), Q.getVectZ() - A.getVectZ());
-			double test1 = (CA.crossProduct(QA)).dotProduct(normal);
+		my_vector ca(c_.get_vect_x() - a_.get_vect_x(), c_.get_vect_y() - a_.get_vect_y(), c_.get_vect_z() - a_.get_vect_z());
+		const my_vector qa(q.get_vect_x() - a_.get_vect_x(), q.get_vect_y() - a_.get_vect_y(), q.get_vect_z() - a_.get_vect_z());
+		const double test1 = (ca.cross_product(qa)).dot_product(normal_);
 
-			Vect BC(B.getVectX() - C.getVectX(), B.getVectY() - C.getVectY(), B.getVectZ() - C.getVectZ());
-			Vect QC(Q.getVectX() - C.getVectX(), Q.getVectY() - C.getVectY(), Q.getVectZ() - C.getVectZ());
-			double test2 = (BC.crossProduct(QC)).dotProduct(normal);
+		my_vector bc(b_.get_vect_x() - c_.get_vect_x(), b_.get_vect_y() - c_.get_vect_y(), b_.get_vect_z() - c_.get_vect_z());
+		const my_vector qc(q.get_vect_x() - c_.get_vect_x(), q.get_vect_y() - c_.get_vect_y(), q.get_vect_z() - c_.get_vect_z());
+		const double test2 = (bc.cross_product(qc)).dot_product(normal_);
 
-			Vect AB(A.getVectX() - B.getVectX(), A.getVectY() - B.getVectY(), A.getVectZ() - B.getVectZ());
-			Vect QB(Q.getVectX() - B.getVectX(), Q.getVectY() - B.getVectY(), Q.getVectZ() - B.getVectZ());
-			double test3 = (AB.crossProduct(QB)).dotProduct(normal);
+		my_vector ab(a_.get_vect_x() - b_.get_vect_x(), a_.get_vect_y() - b_.get_vect_y(), a_.get_vect_z() - b_.get_vect_z());
+		const my_vector qb(q.get_vect_x() - b_.get_vect_x(), q.get_vect_y() - b_.get_vect_y(), q.get_vect_z() - b_.get_vect_z());
+		const double test3 = (ab.cross_product(qb)).dot_product(normal_);
 
-			if ((test1 >= 0) && (test2 >= 0) && (test3 >= 0)) {
-				//inside the triangle
-				return -1 * b / a;
-			}
-			else {
-				return -1;
-			}
+		if ((test1 >= 0) && (test2 >= 0) && (test3 >= 0)) {
+			//inside the triangle
+			return -1 * b / a;
 		}
+		return -1;
 	}
 };
 
-Triangle::Triangle() {
-	A = Vect(1, 0, 0);
-	B = Vect(0, 1, 0);
-	C = Vect(0, 0, 1);
-	normal = Vect(1, 0, 0);
-	distance = 0.0;
-	color = Color(.5, .5, .5, 0);
+inline triangle::triangle() {
+	a_ = my_vector(1, 0, 0);
+	b_ = my_vector(0, 1, 0);
+	c_ = my_vector(0, 0, 1);
+	normal_ = my_vector(1, 0, 0);
+	distance_ = 0.0;
+	color_ = color(.5, .5, .5, 0);
 }
 
-Triangle::Triangle(Vect pointA, Vect pointB, Vect pointC, Color colorValue) {
-	A = pointA;
-	B = pointB;
-	C = pointC;
-	color = colorValue;
+inline triangle::triangle(my_vector point_a, my_vector point_b, my_vector point_c, color color_value) {
+	a_ = point_a;
+	b_ = point_b;
+	c_ = point_c;
+	color_ = color_value;
+	distance_ = 0.0;
 }
 
 #endif

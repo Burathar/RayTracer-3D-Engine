@@ -1,56 +1,57 @@
 #ifndef _PLANE_H
 #define _PLANE_H
 
-#include "math.h"
 #include "Object.h"
-#include "Vect.h"
+#include "MyVector.h"
 #include "Color.h"
 
-class Plane : public Object {
-	Vect normal;
-	double distance;
-	Color color;
+class plane : public object {
+	my_vector normal_;
+	double distance_;
+	color color_;
 
 public:
 
-	Plane();
+	plane();
 
-	Plane(Vect, double, Color);
+	plane(my_vector, double, color);
 
-	Vect getPlaneNormal() { return normal; }
-	double getPlaneDistance() { return distance; }
-	Color getColor() { return color; }
+	my_vector get_plane_normal() { return normal_; }
+	double get_plane_distance() { return distance_; }
+	color get_color() override { return color_; }
 
-	Vect getNormalAt(Vect point) { //Dit kan niet kloppen!
-		return normal;
+	my_vector get_normal_at(my_vector point) override
+	{
+		return normal_;
 	}
 
-	double findIntersection(Ray ray) {
-		Vect ray_direction = ray.getRayDirection();
+	double find_intersection(ray ray) override
+	{
+		my_vector ray_direction = ray.get_ray_direction();
 
-		double a = ray_direction.dotProduct(normal);
+		double a = ray_direction.dot_product(normal_);
 
 		if (a == 0) {
 			//ray is parallel to  the plane
 			return -1;
 		}
 		else {
-			double b = normal.dotProduct(ray.getRayOrigin().vectAdd(normal.vectMult(distance).negative()));
+			const double b = normal_.dot_product(ray.get_ray_origin().vect_add(normal_.vect_mult(distance_).negative()));
 			return -1 * b / a;
 		}
 	}
 };
 
-Plane::Plane() {
-	normal = Vect(1, 0, 0);
-	distance = 0.0;
-	color = Color(.5, .5, .5, 0);
+inline plane::plane() {
+	normal_ = my_vector(1, 0, 0);
+	distance_ = 0.0;
+	color_ = color(.5, .5, .5, 0);
 }
 
-Plane::Plane(Vect normalValue, double distanceValue, Color colorValue) {
-	normal = normalValue;
-	distance = distanceValue;
-	color = colorValue;
+inline plane::plane(my_vector normalValue, double distanceValue, color colorValue) {
+	normal_ = normalValue;
+	distance_ = distanceValue;
+	color_ = colorValue;
 }
 
 #endif

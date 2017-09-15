@@ -3,57 +3,58 @@
 
 #include "math.h"
 #include "Object.h"
-#include "Vect.h"
+#include "MyVector.h"
 #include "Color.h"
 
-class Sphere : public Object {
-	Vect center;
-	double radius;
-	Color color;
+class sphere : public object {
+	my_vector center_;
+	double radius_;
+	color color_;
 
 public:
 
-	Sphere();
+	sphere();
 
-	Sphere(Vect, double, Color);
+	sphere(my_vector, double, color);
 
-	Vect getSphereCenter() { return center; }
-	double getSphereRadius() { return radius; }
-	Color getColor() { return color; }
+	my_vector get_sphere_center() { return center_; }
+	double get_sphere_radius() { return radius_; }
+	color get_color() override { return color_; }
 
-	Vect getNormalAt(Vect point) {
-		return point.vectAdd(center.negative()).normalize();
+	my_vector get_normal_at(my_vector point) override
+	{
+		return point.vect_add(center_.negative()).normalize();
 	}
 
-	double findIntersection(Ray ray) {
-		Vect ray_origin = ray.getRayOrigin();
-		double ray_origin_x = ray_origin.getVectX();
-		double ray_origin_y = ray_origin.getVectY();
-		double ray_origin_z = ray_origin.getVectZ();
+	double find_intersection(ray ray) override
+	{
+		my_vector ray_origin = ray.get_ray_origin();
+		double ray_origin_x = ray_origin.get_vect_x();
+		double ray_origin_y = ray_origin.get_vect_y();
+		double ray_origin_z = ray_origin.get_vect_z();
 
-		Vect ray_direction = ray.getRayDirection();
-		double ray_direction_x = ray_direction.getVectX();
-		double ray_direction_y = ray_direction.getVectY();
-		double ray_direction_z = ray_direction.getVectZ();
+		my_vector ray_direction = ray.get_ray_direction();
+		double ray_direction_x = ray_direction.get_vect_x();
+		double ray_direction_y = ray_direction.get_vect_y();
+		double ray_direction_z = ray_direction.get_vect_z();
 
-		Vect sphere_center = center;//zwaar onnodig?
-		double sphere_center_x = sphere_center.getVectX();
-		double sphere_center_y = sphere_center.getVectY();
-		double sphere_center_z = sphere_center.getVectZ();
+		my_vector sphere_center = center_;//zwaar onnodig?
+		double sphere_center_x = sphere_center.get_vect_x();
+		double sphere_center_y = sphere_center.get_vect_y();
+		double sphere_center_z = sphere_center.get_vect_z();
 
-		double a = 1; //normalized
 		double b = (2 * (ray_origin_x - sphere_center_x) * ray_direction_x) +
 			(2 * (ray_origin_y - sphere_center_y) * ray_direction_y) +
 			(2 * (ray_origin_z - sphere_center_z) * ray_direction_z);
 		double c = (ray_origin_x - sphere_center_x) * (ray_origin_x - sphere_center_x) +
 			(ray_origin_y - sphere_center_y) * (ray_origin_y - sphere_center_y) +
-			(ray_origin_z - sphere_center_z) * (ray_origin_z - sphere_center_z) - (radius * radius);
+			(ray_origin_z - sphere_center_z) * (ray_origin_z - sphere_center_z) - (radius_ * radius_);
 
-		double discriminant = b * b - 4 * c;
+		const double discriminant = b * b - 4 * c;
 
 		if (discriminant > 0) {
 			//the ray intersects the sphere (at 2 positions)
-			double root_1 = ((-1 * b - sqrt(discriminant)) / 2) - 0.000001;
+			const double root_1 = ((-1 * b - sqrt(discriminant)) / 2) - 0.000001;
 
 			if (root_1 > 0) {
 				// the first route is the smallest positive root_
@@ -61,7 +62,7 @@ public:
 			}
 			else {
 				// the second root is the smallest root
-				double root_2 = ((sqrt(discriminant) - b) / 2) - 0.000001;
+				const double root_2 = ((sqrt(discriminant) - b) / 2) - 0.000001;
 				return root_2;
 			}
 		}
@@ -72,16 +73,16 @@ public:
 	}
 };
 
-Sphere::Sphere() {
-	center = Vect(0, 0, 0);
-	radius = 1.0;
-	color = Color(.5, .5, .5, 0);
+inline sphere::sphere() {
+	center_ = my_vector(0, 0, 0);
+	radius_ = 1.0;
+	color_ = color(.5, .5, .5, 0);
 }
 
-Sphere::Sphere(Vect centerValue, double radiusValue, Color colorValue) {
-	center = centerValue;
-	radius = radiusValue;
-	color = colorValue;
+inline sphere::sphere(my_vector centerValue, double radiusValue, color colorValue) {
+	center_ = centerValue;
+	radius_ = radiusValue;
+	color_ = colorValue;
 }
 
 #endif

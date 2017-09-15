@@ -1,29 +1,29 @@
 #ifndef _RAY_H
 #define _RAY_H
 
-#include "Vect.h"
+#include "MyVector.h"
 
-class Ray {
-	Vect origin, direction;
+class ray {
+	my_vector origin_, direction_;
 
 public:
 
-	Ray();
+	ray();
 
-	Ray(Vect, Vect);
+	ray(my_vector, my_vector);
 
-	Vect getRayOrigin() { return origin; }
-	Vect getRayDirection() { return direction; }
+	my_vector get_ray_origin() { return origin_; }
+	my_vector get_ray_direction() { return direction_; }
 };
 
-Ray::Ray() {
-	origin = Vect(0, 0, 0);
-	direction = Vect(1, 0, 0);
+inline ray::ray() {
+	origin_ = my_vector(0, 0, 0);
+	direction_ = my_vector(1, 0, 0);
 }
 
-Ray::Ray(Vect o, Vect d) {
-	origin = o;
-	direction = d;
+inline ray::ray(my_vector o, my_vector d) {
+	origin_ = o;
+	direction_ = d;
 }
 
 #endif

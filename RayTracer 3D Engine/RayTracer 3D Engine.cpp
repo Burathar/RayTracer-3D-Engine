@@ -11,7 +11,7 @@
 
 #include "filestream.h"
 
-#include "Vect.h"
+#include "MyVector.h"
 #include "Ray.h"
 #include "Camera.h"
 #include "Color.h"
@@ -57,44 +57,44 @@ int winning_object_index(vector<double> object_intersections) {
 	return -1;
 }
 
-Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, vector<Object*> scene_objects, int index_of_winning_object, vector<Source*> light_sources, double accuracy, double ambientlight) {
-	Color winning_object_color = scene_objects.at(index_of_winning_object)->getColor();
-	Vect winning_object_normal = scene_objects.at(index_of_winning_object)->getNormalAt(intersection_position);
+color get_color_at(my_vector intersection_position, my_vector intersecting_ray_direction, vector<object*> scene_objects, int index_of_winning_object, vector<source*> light_sources, double accuracy, double ambientlight) {
+	color winning_object_color = scene_objects.at(index_of_winning_object)->get_color();
+	my_vector winning_object_normal = scene_objects.at(index_of_winning_object)->get_normal_at(intersection_position);
 
-	if (winning_object_color.getColorSpecial() == 2) {
+	if (winning_object_color.get_color_special() == 2) {
 		//checkerboard
-		const int square = int(floor(intersection_position.getVectX())) + int(floor(intersection_position.getVectZ()));
+		const int square = int(floor(intersection_position.get_vect_x())) + int(floor(intersection_position.get_vect_z()));
 
 		if ((square % 2) == 0) {
-			winning_object_color.setColorRed(0);
-			winning_object_color.setColorGreen(0);
-			winning_object_color.setColorBlue(0);
+			winning_object_color.set_color_red(0);
+			winning_object_color.set_color_green(0);
+			winning_object_color.set_color_blue(0);
 		}
 		else {
-			winning_object_color.setColorRed(1);
-			winning_object_color.setColorGreen(1);
-			winning_object_color.setColorBlue(1);
+			winning_object_color.set_color_red(1);
+			winning_object_color.set_color_green(1);
+			winning_object_color.set_color_blue(1);
 		}
 	}
 
-	Color final_color = winning_object_color.colorScalar(ambientlight);
+	color final_color = winning_object_color.color_scalar(ambientlight);
 
-	if (winning_object_color.getColorSpecial() > 0 && winning_object_color.getColorSpecial() <= 1) {
+	if (winning_object_color.get_color_special() > 0 && winning_object_color.get_color_special() <= 1) {
 		//reflection from objects with spectral intensity
-		const double dot1 = winning_object_normal.dotProduct(intersecting_ray_direction.negative());
-		Vect scalar1 = winning_object_normal.vectMult(dot1);
-		Vect add1 = scalar1.vectAdd(intersecting_ray_direction);
-		const Vect scalar2 = add1.vectMult(2);
-		Vect add2 = intersecting_ray_direction.negative().vectAdd(scalar2);
-		Vect reflection_direction = add2.normalize();
+		const double dot1 = winning_object_normal.dot_product(intersecting_ray_direction.negative());
+		my_vector scalar1 = winning_object_normal.vect_mult(dot1);
+		my_vector add1 = scalar1.vect_add(intersecting_ray_direction);
+		const my_vector scalar2 = add1.vect_mult(2);
+		my_vector add2 = intersecting_ray_direction.negative().vect_add(scalar2);
+		my_vector reflection_direction = add2.normalize();
 
-		const Ray reflection_ray(intersection_position, reflection_direction);
+		const ray reflection_ray(intersection_position, reflection_direction);
 
 		//determine what the ray intersects with first
 		vector<double> reflection_intersections;
 
 		for (int reflection_index = 0; reflection_index < scene_objects.size(); reflection_index++) {
-			reflection_intersections.push_back(scene_objects.at(reflection_index)->findIntersection(reflection_ray));
+			reflection_intersections.push_back(scene_objects.at(reflection_index)->find_intersection(reflection_ray));
 		}
 
 		const int index_of_winning_object_with_reflection = winning_object_index(reflection_intersections);
@@ -105,34 +105,34 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 				//determine the position and direction at the point of intersection with the reflection ray
 				// the ray only affect the color if it reflects off something
 
-				const Vect reflection_intersection_position = intersection_position.vectAdd(reflection_direction.vectMult(reflection_intersections.at(index_of_winning_object_with_reflection)));
-				const Vect reflection_intersection_ray_direction = reflection_direction;
+				const my_vector reflection_intersection_position = intersection_position.vect_add(reflection_direction.vect_mult(reflection_intersections.at(index_of_winning_object_with_reflection)));
+				const my_vector reflection_intersection_ray_direction = reflection_direction;
 
-				Color reflection_intersection_color = getColorAt(reflection_intersection_position, reflection_intersection_ray_direction, scene_objects, index_of_winning_object_with_reflection, light_sources, accuracy, ambientlight);
+				color reflection_intersection_color = get_color_at(reflection_intersection_position, reflection_intersection_ray_direction, scene_objects, index_of_winning_object_with_reflection, light_sources, accuracy, ambientlight);
 
-				final_color = final_color.colorAdd(reflection_intersection_color.colorScalar(winning_object_color.getColorSpecial()));
+				final_color = final_color.color_add(reflection_intersection_color.color_scalar(winning_object_color.get_color_special()));
 			}
 		}
 	}
 
 	for (int light_index = 0; light_index < light_sources.size(); light_index++) {
-		const Vect light_direction = light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize();
+		const my_vector light_direction = light_sources.at(light_index)->get_light_position().vect_add(intersection_position.negative()).normalize();
 
-		const float cosine_angle = winning_object_normal.dotProduct(light_direction);
+		const float cosine_angle = winning_object_normal.dot_product(light_direction);
 
 		if (cosine_angle > 0) {
 			//test fopr shadows
 			bool shadowed = false;
 
-			Vect disance_to_light = light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize();
+			my_vector disance_to_light = light_sources.at(light_index)->get_light_position().vect_add(intersection_position.negative()).normalize();
 			const float distance_to_light_magnitude = disance_to_light.magnitude(); //zinloos
 
-			const Ray shadow_ray(intersection_position, light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize());
+			const ray shadow_ray(intersection_position, light_sources.at(light_index)->get_light_position().vect_add(intersection_position.negative()).normalize());
 
 			vector<double> secondary_intersections;
 
 			for (int object_index = 0; object_index < scene_objects.size() && shadowed == false; object_index++) {
-				secondary_intersections.push_back(scene_objects.at(object_index)->findIntersection(shadow_ray));
+				secondary_intersections.push_back(scene_objects.at(object_index)->find_intersection(shadow_ray));
 			}
 
 			for (int c = 0; c < secondary_intersections.size(); c++) {
@@ -145,20 +145,20 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 			}
 
 			if (shadowed == false) {
-				final_color = final_color.colorAdd(winning_object_color.colorMultiply(light_sources.at(light_index)->getLightColor()).colorScalar(cosine_angle));
+				final_color = final_color.color_add(winning_object_color.color_multiply(light_sources.at(light_index)->get_light_color()).color_scalar(cosine_angle));
 
-				if (winning_object_color.getColorSpecial() > 0 && winning_object_color.getColorSpecial() <= 1) {
-					const double dot1 = winning_object_normal.dotProduct(intersecting_ray_direction.negative());
-					Vect scalar1 = winning_object_normal.vectMult(dot1);
-					Vect add1 = scalar1.vectAdd(intersecting_ray_direction);
-					const Vect scalar2 = add1.vectMult(2);
-					Vect add2 = intersecting_ray_direction.negative().vectAdd(scalar2);
-					Vect reflection_direction = add2.normalize();
+				if (winning_object_color.get_color_special() > 0 && winning_object_color.get_color_special() <= 1) {
+					const double dot1 = winning_object_normal.dot_product(intersecting_ray_direction.negative());
+					my_vector scalar1 = winning_object_normal.vect_mult(dot1);
+					my_vector add1 = scalar1.vect_add(intersecting_ray_direction);
+					const my_vector scalar2 = add1.vect_mult(2);
+					my_vector add2 = intersecting_ray_direction.negative().vect_add(scalar2);
+					my_vector reflection_direction = add2.normalize();
 
-					double specular = reflection_direction.dotProduct(light_direction);
+					double specular = reflection_direction.dot_product(light_direction);
 					if (specular > 0) {
 						specular = pow(specular, 10);
-						final_color = final_color.colorAdd(light_sources.at(light_index)->getLightColor().colorScalar(specular * winning_object_color.getColorSpecial()));
+						final_color = final_color.color_add(light_sources.at(light_index)->get_light_color().color_scalar(specular * winning_object_color.get_color_special()));
 					}
 				}
 			}
@@ -182,49 +182,48 @@ int main(int argc, char *argv[]) {
 	rgb_type *pixels = new rgb_type[n];
 
 	const int aadepth = 2; // hoeveel anti-aliasing (0 = 1 pixel, 1 = 4 pixels, )
-	double aathreshold = 0.1;
 	double aspectratio = static_cast<double>(width) / static_cast<double>(height);
 	const double ambientlight = 0.2;
 	const double accuracy = 0.000001;
 
-	const Vect o(0, 0, 0);
-	Vect x(1, 0, 0);
-	Vect y(0, 1, 0);
-	Vect z(0, 0, 1);
+	const my_vector o(0, 0, 0);
+	my_vector x(1, 0, 0);
+	my_vector y(0, 1, 0);
+	my_vector z(0, 0, 1);
 
-	const Vect new_sphere_location(1.7, 0, -0.7);
+	const my_vector new_sphere_location(1.7, 0, -0.7);
 
-	Vect campos(3, 1.5, -4);
-	Vect look_at(0, 0, 0);
-	Vect diff_btw(campos.getVectX() - look_at.getVectX(), campos.getVectY() - look_at.getVectY(), campos.getVectZ() - look_at.getVectZ());
+	my_vector campos(3, 1.5, -4);
+	my_vector look_at(0, 0, 0);
+	my_vector diff_btw(campos.get_vect_x() - look_at.get_vect_x(), campos.get_vect_y() - look_at.get_vect_y(), campos.get_vect_z() - look_at.get_vect_z());
 
-	Vect camdir = diff_btw.negative().normalize();
-	Vect camright = y.crossProduct(camdir).normalize();
-	Vect camdown = camright.crossProduct(camdir);
-	Camera scene_cam(campos, camdir, camright, camdown);
+	my_vector camdir = diff_btw.negative().normalize();
+	my_vector camright = y.cross_product(camdir).normalize();
+	my_vector camdown = camright.cross_product(camdir);
+	camera scene_cam(campos, camdir, camright, camdown);
 
-	const Color white_light(1.0, 1.0, 1.0, 0);
-	const Color pretty_green(0.5, 1.0, 0.5, 0.5);
-	const Color maroon(0.5, 0.25, 0.25, .3);
-	const Color orange(0.94, 0.75, 0.31, 0);
-	const Color tile_floor(1, 1, 1, 2);
+	const color white_light(1.0, 1.0, 1.0, 0);
+	const color pretty_green(0.5, 1.0, 0.5, 0.5);
+	const color maroon(0.5, 0.25, 0.25, .3);
+	const color orange(0.94, 0.75, 0.31, 0);
+	const color tile_floor(1, 1, 1, 2);
 
-	const Vect light_position(-7, 10, -10);
-	Light scene_light(light_position, white_light);
-	vector<Source*> light_sources;
-	light_sources.push_back(dynamic_cast<Source*>(&scene_light)); //voeg alle ligthsources toe
+	const my_vector light_position(-7, 10, -10);
+	light scene_light(light_position, white_light);
+	vector<source*> light_sources;
+	light_sources.push_back(dynamic_cast<source*>(&scene_light)); //voeg alle ligthsources toe
 
 																  // scene objects
-	Sphere scene_sphere(o, 1, pretty_green);
-	Sphere scene_sphere2(new_sphere_location, .5, maroon);
-	Plane scene_plane(y, -1, tile_floor);
-	Triangle scene_triangle(Vect(3, 0, 0), Vect(0, 3, 0), Vect(0, 0, 3), orange);
+	sphere scene_sphere(o, 1, pretty_green);
+	sphere scene_sphere2(new_sphere_location, .5, maroon);
+	plane scene_plane(y, -1, tile_floor);
+	triangle scene_triangle(my_vector(3, 0, 0), my_vector(0, 3, 0), my_vector(0, 0, 3), orange);
 
-	vector<Object*> scene_objects;
-	scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));//klopt hier iets van?
-	scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere2));
-	scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
-	scene_objects.push_back(dynamic_cast<Object*>(&scene_triangle));
+	vector<object*> scene_objects;
+	scene_objects.push_back(dynamic_cast<object*>(&scene_sphere));//klopt hier iets van?
+	scene_objects.push_back(dynamic_cast<object*>(&scene_sphere2));
+	scene_objects.push_back(dynamic_cast<object*>(&scene_plane));
+	scene_objects.push_back(dynamic_cast<object*>(&scene_triangle));
 
 	double xamnt, yamnt;
 	double temp_red;
@@ -280,15 +279,15 @@ int main(int argc, char *argv[]) {
 						}
 					}
 
-					Vect cam_ray_origin = scene_cam.getCameraPosition();
-					Vect cam_ray_direction = camdir.vectAdd(camright.vectMult(xamnt - 0.5).vectAdd(camdown.vectMult(yamnt - 0.5))).normalize();
+					my_vector cam_ray_origin = scene_cam.get_camera_position();
+					my_vector cam_ray_direction = camdir.vect_add(camright.vect_mult(xamnt - 0.5).vect_add(camdown.vect_mult(yamnt - 0.5))).normalize();
 
-					const Ray cam_ray(cam_ray_origin, cam_ray_direction);
+					const ray cam_ray(cam_ray_origin, cam_ray_direction);
 
 					vector<double> intersections;
 
 					for (int i = 0; i < scene_objects.size(); i++) {
-						intersections.push_back(scene_objects.at(i)->findIntersection(cam_ray));
+						intersections.push_back(scene_objects.at(i)->find_intersection(cam_ray));
 					}
 
 					const int index_of_winning_object = winning_object_index(intersections);
@@ -301,14 +300,14 @@ int main(int argc, char *argv[]) {
 					}
 					else {
 						if (intersections.at(index_of_winning_object) > accuracy) {
-							const Vect intersection_position = cam_ray_origin.vectAdd(cam_ray_direction.vectMult(intersections.at(index_of_winning_object)));
-							const Vect intersecting_ray_direction = cam_ray_direction;
+							const my_vector intersection_position = cam_ray_origin.vect_add(cam_ray_direction.vect_mult(intersections.at(index_of_winning_object)));
+							const my_vector intersecting_ray_direction = cam_ray_direction;
 
-							Color intersection_color = getColorAt(intersection_position, intersecting_ray_direction, scene_objects, index_of_winning_object, light_sources, accuracy, ambientlight);
+							color intersection_color = get_color_at(intersection_position, intersecting_ray_direction, scene_objects, index_of_winning_object, light_sources, accuracy, ambientlight);
 
-							temp_red[aa_index] = intersection_color.getColorRed();
-							temp_green[aa_index] = intersection_color.getColorGreen();
-							temp_blue[aa_index] = intersection_color.getColorBlue();
+							temp_red[aa_index] = intersection_color.get_color_red();
+							temp_green[aa_index] = intersection_color.get_color_green();
+							temp_blue[aa_index] = intersection_color.get_color_blue();
 						}
 					}
 				}

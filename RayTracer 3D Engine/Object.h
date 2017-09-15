@@ -2,25 +2,26 @@
 #define _OBJECT_H
 
 #include "Ray.h"
-#include "Vect.h"
+#include "MyVector.h"
 #include "Color.h"
 
-class Object {
+class object {
 public:
+	virtual ~object() = default;
 
-	Object();
+	object();
 
-	virtual Color getColor() { return Color(0.0, 0.0, 0.0, 0); }
+	virtual color get_color() { return color(0.0, 0.0, 0.0, 0); }
 
-	virtual Vect getNormalAt(Vect intersection_position) {
-		return Vect(0, 0, 0);
+	virtual my_vector get_normal_at(my_vector intersection_position) {
+		return my_vector(0, 0, 0);
 	}
 
-	virtual double findIntersection(Ray ray) {
+	virtual double find_intersection(ray ray) {
 		return 0;
 	}
 };
 
-Object::Object() {}
+inline object::object() {}
 
 #endif
