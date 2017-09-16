@@ -106,9 +106,8 @@ color get_color_at(my_vector intersection_position, my_vector intersecting_ray_d
 				// the ray only affect the color if it reflects off something
 
 				const my_vector reflection_intersection_position = intersection_position.vect_add(reflection_direction.vect_mult(reflection_intersections.at(index_of_winning_object_with_reflection)));
-				const my_vector reflection_intersection_ray_direction = reflection_direction;
 
-				color reflection_intersection_color = get_color_at(reflection_intersection_position, reflection_intersection_ray_direction, scene_objects, index_of_winning_object_with_reflection, light_sources, accuracy, ambientlight);
+				color reflection_intersection_color = get_color_at(reflection_intersection_position, reflection_direction, scene_objects, index_of_winning_object_with_reflection, light_sources, accuracy, ambientlight);
 
 				final_color = final_color.color_add(reflection_intersection_color.color_scalar(winning_object_color.get_color_special()));
 			}
@@ -226,9 +225,6 @@ int main(int argc, char *argv[]) {
 	scene_objects.push_back(dynamic_cast<object*>(&scene_triangle));
 
 	double xamnt, yamnt;
-	double temp_red;
-	double temp_green;
-	double temp_blue;
 
 	for (int x = 0; x < width; x++) {
 		cout << (static_cast<double>(x) / static_cast<double>(width) * 100) << '\n';
@@ -279,10 +275,10 @@ int main(int argc, char *argv[]) {
 						}
 					}
 
-					my_vector cam_ray_origin = scene_cam.get_camera_position();
-					my_vector cam_ray_direction = camdir.vect_add(camright.vect_mult(xamnt - 0.5).vect_add(camdown.vect_mult(yamnt - 0.5))).normalize();
-
-					const ray cam_ray(cam_ray_origin, cam_ray_direction);
+					const ray cam_ray(
+						scene_cam.get_camera_position(),
+						camdir.vect_add(camright.vect_mult(xamnt - 0.5).vect_add(camdown.vect_mult(yamnt - 0.5))).normalize()
+					);
 
 					vector<double> intersections;
 
@@ -300,8 +296,8 @@ int main(int argc, char *argv[]) {
 					}
 					else {
 						if (intersections.at(index_of_winning_object) > accuracy) {
-							const my_vector intersection_position = cam_ray_origin.vect_add(cam_ray_direction.vect_mult(intersections.at(index_of_winning_object)));
-							const my_vector intersecting_ray_direction = cam_ray_direction;
+							const my_vector intersection_position = cam_ray.get_ray_origin().vect_add(cam_ray.get_ray_direction().vect_mult(intersections.at(index_of_winning_object)));
+							const my_vector intersecting_ray_direction = cam_ray.get_ray_direction();
 
 							color intersection_color = get_color_at(intersection_position, intersecting_ray_direction, scene_objects, index_of_winning_object, light_sources, accuracy, ambientlight);
 
@@ -337,9 +333,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	filestream::savembp("scene_AntiAliasedBig.bmp", width, height, dpi, pixels);
-
-	delete pixels, temp_red, temp_green, temp_blue;
+	filestream fs;
+	fs.savembp("scene_AntiAliasedBig.bmp", width, height, dpi, pixels);
+	//delete fs?
 
 	const clock_t t2 = clock();
 	const float diff = (static_cast<float>(t2) - static_cast<float>(t1)) / 1000;

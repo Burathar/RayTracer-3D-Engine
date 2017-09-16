@@ -16,8 +16,8 @@ public:
 
 	plane(my_vector, double, color);
 
-	my_vector get_plane_normal() { return normal_; }
-	double get_plane_distance() { return distance_; }
+	my_vector get_plane_normal() const { return normal_; }
+	double get_plane_distance() const { return distance_; }
 	color get_color() override { return color_; }
 
 	my_vector get_normal_at(my_vector point) override
@@ -29,16 +29,14 @@ public:
 	{
 		my_vector ray_direction = ray.get_ray_direction();
 
-		double a = ray_direction.dot_product(normal_);
+		const double a = ray_direction.dot_product(normal_);
 
 		if (a == 0) {
 			//ray is parallel to  the plane
 			return -1;
 		}
-		else {
-			const double b = normal_.dot_product(ray.get_ray_origin().vect_add(normal_.vect_mult(distance_).negative()));
-			return -1 * b / a;
-		}
+		const double b = normal_.dot_product(ray.get_ray_origin().vect_add(normal_.vect_mult(distance_).negative()));
+		return -1 * b / a;
 	}
 };
 
@@ -48,10 +46,10 @@ inline plane::plane() {
 	color_ = color(.5, .5, .5, 0);
 }
 
-inline plane::plane(my_vector normalValue, double distanceValue, color colorValue) {
-	normal_ = normalValue;
-	distance_ = distanceValue;
-	color_ = colorValue;
+inline plane::plane(my_vector normal_value, double distance_value, color color_value) {
+	normal_ = normal_value;
+	distance_ = distance_value;
+	color_ = color_value;
 }
 
 #endif

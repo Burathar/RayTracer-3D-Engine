@@ -15,8 +15,8 @@ public:
 
 	light(my_vector, color);
 
-	my_vector get_light_position() { return position_; }
-	color get_light_color() { return color_; }
+	my_vector get_light_position() override { return position_; }
+	color get_light_color() override { return color_; }
 };
 
 inline light::light() {

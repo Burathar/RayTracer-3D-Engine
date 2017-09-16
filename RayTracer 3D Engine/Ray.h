@@ -12,8 +12,8 @@ public:
 
 	ray(my_vector, my_vector);
 
-	my_vector get_ray_origin() { return origin_; }
-	my_vector get_ray_direction() { return direction_; }
+	my_vector get_ray_origin() const { return origin_; }
+	my_vector get_ray_direction() const { return direction_; }
 };
 
 inline ray::ray() {
